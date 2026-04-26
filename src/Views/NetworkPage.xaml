@@ -1,0 +1,48 @@
+﻿<Page x:Class="ShieldX.Views.NetworkPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ShieldX.Views"
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="950"
+      Title="Network"
+      Background="{DynamicResource AppBg}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="20">
+            <DockPanel Margin="0,0,0,20">
+                <TextBlock Text="Network Monitor" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" />
+                <Button Content="Refresh" Click="RefreshButton_Click" HorizontalAlignment="Right" Margin="10,0,0,0" Padding="10,4" Background="{DynamicResource AccentClr}" Foreground="{DynamicResource TextPrimary}" BorderThickness="0"/>
+            </DockPanel>
+
+            <TextBlock Text="Network Adapters" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,10"/>
+            <DataGrid x:Name="NetworkGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="None" RowBackground="{DynamicResource CardBg}" AlternatingRowBackground="{DynamicResource AppBg}" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,20">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Interface" Binding="{Binding Name}" Width="2*" />
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                    <DataGridTextColumn Header="IPv4" Binding="{Binding IPv4}" Width="*" />
+                    <DataGridTextColumn Header="IPv6" Binding="{Binding IPv6}" Width="*" />
+                    <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock Text="Active TCP Connections" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,10"/>
+            <DataGrid x:Name="ConnectionsGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" HeadersVisibility="Column" GridLinesVisibility="None" RowBackground="{DynamicResource CardBg}" AlternatingRowBackground="{DynamicResource AppBg}" Foreground="{DynamicResource TextPrimary}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Local Endpoint" Binding="{Binding LocalEndpoint}" Width="2*" />
+                    <DataGridTextColumn Header="Remote Endpoint" Binding="{Binding RemoteEndpoint}" Width="2*" />
+                    <DataGridTextColumn Header="State" Binding="{Binding State}" Width="*" />
+                    <DataGridTextColumn Header="Risk" Binding="{Binding Risk}" Width="*" />
+                    <DataGridTemplateColumn Header="Action" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Block IP" Padding="8,4" Click="BlockIpButton_Click" Tag="{Binding RemoteIp}" Background="{StaticResource AccentDangerBrush}" Foreground="{DynamicResource TextPrimary}" BorderThickness="0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

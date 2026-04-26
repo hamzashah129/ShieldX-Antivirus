@@ -1,0 +1,165 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  CONFIGURATION: Release
+
+jobs:
+  create-release:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Extract Version
+      id: version
+      run: |
+        $tag = "${{ github.ref }}"
+        $version = $tag -replace 'refs/tags/v', ''
+        Write-Output "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+    
+    - name: Update Version File
+      run: |
+        $json = Get-Content version.json | ConvertFrom-Json
+        $json.version = "${{ steps.version.outputs.VERSION }}"
+        $json | ConvertTo-Json | Set-Content version.json
+    
+    - name: Restore Dependencies
+      run: dotnet restore
+    
+    - name: Build Release
+      run: dotnet build ShieldX.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
+    
+    - name: Publish Application
+      run: dotnet publish ShieldX.csproj -c ${{ env.CONFIGURATION }} -o publish --self-contained --no-build
+    
+    - name: Import Code Signing Certificate
+      run: |
+        $certBytes = [Convert]::FromBase64String("${{ secrets.CODE_SIGNING_CERT }}")
+        [IO.File]::WriteAllBytes("code-signing.pfx", $certBytes)
+        
+        $pwd = ConvertTo-SecureString "${{ secrets.CERT_PASSWORD }}" -Force -AsPlainText
+        Import-PfxCertificate -FilePath "code-signing.pfx" `
+          -CertStoreLocation "Cert:\CurrentUser\My" `
+          -Password $pwd
+    
+    - name: Sign Executable
+      run: |
+        $signtool = "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe"
+        if (-not (Test-Path $signtool)) {
+          Write-Error "SignTool not found. Install Windows SDK."
+          exit 1
+        }
+        
+        & $signtool sign `
+          -f "code-signing.pfx" `
+          -p "${{ secrets.CERT_PASSWORD }}" `
+          -fd SHA256 `
+          -t "http://timestamp.sectigo.com" `
+          "publish\ShieldX.exe"
+        
+        Write-Host "✅ Signed ShieldX.exe"
+    
+    - name: Create Installer Package
+      run: |
+        # Create installer directory structure
+        $installerDir = "ShieldX.Installer\output"
+        New-Item -ItemType Directory -Path $installerDir -Force | Out-Null
+        
+        # Copy signed executable
+        Copy-Item "publish\ShieldX.exe" "$installerDir\ShieldX.exe" -Force
+        
+        # Create ZIP payload
+        Compress-Archive -Path "publish\*" `
+          -DestinationPath "$installerDir\ShieldX_payload_${{ steps.version.outputs.VERSION }}.zip" `
+          -Force
+        
+        # Copy installer wrapper
+        Copy-Item "ShieldX.Installer\setup.ps1" "$installerDir\setup.ps1" -Force
+        Copy-Item "ShieldX.Installer\setup.bat" "$installerDir\setup.bat" -Force
+    
+    - name: Create Release Archive
+      run: |
+        $version = "${{ steps.version.outputs.VERSION }}"
+        $releaseDir = "releases"
+        New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+        
+        # Create main installer
+        Copy-Item "ShieldX.Installer\output\ShieldX.exe" `
+          "$releaseDir\ShieldX_Professional_v$version`_Setup.exe" -Force
+        
+        # Create portable ZIP
+        Compress-Archive -Path "publish\*" `
+          -DestinationPath "$releaseDir\ShieldX_Professional_v$version`_Portable.zip" `
+          -Force
+        
+        Write-Host "✅ Release archives created"
+        Get-ChildItem $releaseDir | Format-Table Name, Length
+    
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        $version = "${{ steps.version.outputs.VERSION }}"
+        $notes = @"
+        ## ShieldX Professional Antivirus v$version
+        
+        ### Release Information
+        - **Version**: $version
+        - **Release Date**: $(Get-Date -Format 'MMMM dd, yyyy')
+        - **Built**: $(Get-Date -Format 'HH:mm:ss UTC')
+        - **Signed**: ✅ Yes (Code Signed Executable)
+        
+        ### Files
+        - **ShieldX_Professional_v$version`_Setup.exe** - Main installer (signed)
+        - **ShieldX_Professional_v$version`_Portable.zip** - Portable version
+        
+        ### Installation
+        Run the Setup.exe file and follow the prompts.
+        
+        ### Verification
+        - Signature: Digitally Signed
+        - Publisher: SYED HAMZA ALI SHAH
+        - Safe to Install: ✅ Yes
+        
+        ---
+        For documentation, see [CODE_SIGNING_GUIDE.md](https://github.com/${{ github.repository }}/blob/main/CODE_SIGNING_GUIDE.md)
+        "@
+        
+        Add-Content -Path "release-notes.md" -Value $notes
+        Write-Output "NOTES<<EOF`n$notes`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: releases/*
+        body_path: release-notes.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload to Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ShieldX_v${{ steps.version.outputs.VERSION }}
+        path: releases
+        retention-days: 30
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        Remove-Item "code-signing.pfx" -Force -ErrorAction SilentlyContinue
+        Write-Host "✅ Cleanup complete"

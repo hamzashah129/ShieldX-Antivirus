@@ -1,0 +1,7 @@
+<Page x:Class="ShieldX.Views.ThreatHistoryPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="clr-namespace:ShieldX.Views"
+      Background="{DynamicResource AppBg}">
+    <local:ThreatHistoryView/>
+</Page>

@@ -1,0 +1,254 @@
+<Page x:Class="ShieldX.Views.StartupView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      Background="#FF0A0E1A"
+      Foreground="{DynamicResource TextPrimary}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0">
+            <!-- Header -->
+            <Border Background="#FF111B2E" Padding="30,40,30,30">
+                <StackPanel>
+                    <TextBlock Text="⏱️ Startup Manager" FontSize="28" FontWeight="Bold" 
+                              Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,10"/>
+                    <TextBlock Text="Manage programs that launch at system startup" 
+                              FontSize="14" Foreground="#FFA0A0A0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Content -->
+            <Border Grid.Row="1" Padding="30" Margin="0" VerticalAlignment="Stretch">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Summary Section -->
+                    <Border Grid.Row="0" Background="#FF111B2E" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding SummaryText}" Foreground="{DynamicResource TextPrimary}" FontSize="14" 
+                                          FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding StatusMessage}" Foreground="#FFA0A0A0" FontSize="11" 
+                                          Margin="0,6,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" 
+                                       VerticalAlignment="Center" Margin="20,0,0,0">
+                                <Button Command="{Binding RefreshCommand}" Height="36" Width="100" 
+                                       FontSize="12" FontWeight="SemiBold" Background="#FF00D4AA" Foreground="Black"
+                                       Cursor="Hand" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+                                       Margin="0,0,10,0">
+                                    🔄 Refresh
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Filter Section -->
+                    <Border Grid.Row="1" Background="#FF111B2E" CornerRadius="12" Padding="20" Margin="0,0,0,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="FilterInput" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="#FF0A0E1A" Foreground="{DynamicResource TextPrimary}" BorderBrush="#FF2A3F5F" 
+                                    Padding="12,10" Height="36" FontSize="12" 
+                                    KeyDown="FilterInput_KeyDown"/>
+
+                            <Button Grid.Column="1" Command="{Binding FilterCommand}" Height="36" 
+                                   Margin="10,0,10,0" Padding="15,0" Background="#FF00D4AA" 
+                                   Foreground="Black" FontWeight="SemiBold" Cursor="Hand">
+                                🔍 Search
+                            </Button>
+
+                            <Button Grid.Column="2" Command="{Binding ClearFilterCommand}" Height="36" 
+                                   Padding="15,0" Background="#FF2A3F5F" Foreground="{DynamicResource TextPrimary}" 
+                                   FontWeight="SemiBold" Cursor="Hand">
+                                Clear
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- DataGrid -->
+                    <Border Grid.Row="2" Background="#FF111B2E" CornerRadius="12" Padding="12" Margin="0,0,0,20">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
+                            <DataGrid ItemsSource="{Binding FilteredStartupEntries}"
+                                     SelectedItem="{Binding SelectedEntry, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="#FF0A0E1A" Foreground="{DynamicResource TextPrimary}" BorderBrush="#FF2A3F5F"
+                                     BorderThickness="1" GridLinesVisibility="Horizontal"
+                                     RowBackground="#FF111B2E" AlternatingRowBackground="#FF0F1726"
+                                     CanUserAddRows="False" CanUserDeleteRows="False"
+                                     AutoGenerateColumns="False"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     ColumnWidth="Auto"
+                                     MinColumnWidth="80">
+                                <DataGrid.Columns>
+                                    <!-- Name Column -->
+                                    <DataGridTextColumn Header="Name"
+                                                       Binding="{Binding Name}"
+                                                       Width="180" MinWidth="120"
+                                                       IsReadOnly="True"
+                                                       Foreground="{DynamicResource TextPrimary}"/>
+
+                                    <!-- Publisher Column -->
+                                    <DataGridTextColumn Header="Publisher"
+                                                       Binding="{Binding Publisher}"
+                                                       Width="160" MinWidth="100"
+                                                       IsReadOnly="True"
+                                                       Foreground="#FFA0A0A0"/>
+
+                                    <!-- Path Column -->
+                                    <DataGridTextColumn Header="Path"
+                                                       Binding="{Binding PathDisplay}"
+                                                       Width="220" MinWidth="150"
+                                                       IsReadOnly="True"
+                                                       Foreground="#FF80B0FF">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="ToolTip" Value="{Binding Path}"/>
+                                                <Setter Property="Text" Value="{Binding PathDisplay}"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+
+                                    <!-- Impact Badge Column -->
+                                    <DataGridTemplateColumn Header="Impact" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="4" Padding="8,3"
+                                                       HorizontalAlignment="Left">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Impact}"
+                                                                             Value="High">
+                                                                    <Setter Property="Background"
+                                                                            Value="#EF4444"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Impact}"
+                                                                             Value="Medium">
+                                                                    <Setter Property="Background"
+                                                                            Value="#F59E0B"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Impact}"
+                                                                             Value="Low">
+                                                                    <Setter Property="Background"
+                                                                            Value="#10B981"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding ImpactLabel}"
+                                                               Foreground="{DynamicResource TextPrimary}"
+                                                               FontSize="11" FontWeight="Bold"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Enabled Checkbox -->
+                                    <DataGridTemplateColumn Header="Enabled" Width="70">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding IsEnabled, UpdateSourceTrigger=PropertyChanged}"
+                                                         IsEnabled="False" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Actions Column -->
+                                    <DataGridTemplateColumn Header="Actions" Width="180">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
+                                                    <Button Content="Enable"
+                                                            Width="75" Height="24"
+                                                            Margin="0,0,4,0"
+                                                            Background="#10B981"
+                                                            Foreground="{DynamicResource TextPrimary}"
+                                                            FontSize="11"
+                                                            BorderThickness="0"
+                                                            Cursor="Hand"
+                                                            Visibility="{Binding IsEnabled, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
+                                                            IsEnabled="{Binding IsSystemEntry, Converter={StaticResource InverseBoolConverter}}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        CornerRadius="4"
+                                                                        Padding="4,2">
+                                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                                      VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                    <Button Content="Disable"
+                                                            Width="75" Height="24"
+                                                            Background="#EF4444"
+                                                            Foreground="{DynamicResource TextPrimary}"
+                                                            FontSize="11"
+                                                            BorderThickness="0"
+                                                            Cursor="Hand"
+                                                            Visibility="{Binding IsEnabled, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            IsEnabled="{Binding IsSystemEntry, Converter={StaticResource InverseBoolConverter}}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}"
+                                                                        CornerRadius="4"
+                                                                        Padding="4,2">
+                                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                                      VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </Border>
+
+                    <!-- Info Section -->
+                    <Border Grid.Row="3" Background="#FF111B2E" CornerRadius="12" Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="About Startup Manager" FontSize="12" FontWeight="SemiBold" 
+                                      Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,8"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="#FFA0A0A0" FontSize="11" Margin="0,0,0,8">
+                                <Run Text="Green (Low) Impact: Minimal effect on startup time. "/>
+                                <Run Text="Orange (Medium) Impact: Noticeable effect on startup time. "/>
+                                <Run Text="Red (High) Impact: Significant effect on startup time. "/>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" Foreground="#FFA0A0A0" FontSize="11">
+                                <Run Text="⚠ System entries cannot be disabled to prevent system instability."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </Grid>
+</Page>

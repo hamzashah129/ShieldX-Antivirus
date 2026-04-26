@@ -1,0 +1,130 @@
+﻿<UserControl x:Class="ShieldX.Views.ThreatMapWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ShieldX.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="400"
+             Background="{DynamicResource CardBg}"
+             BorderBrush="{DynamicResource BorderClr}"
+             BorderThickness="1">
+
+    <UserControl.Resources>
+        <Style x:Key="ThreatIndicator" TargetType="Ellipse">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="StrokeThickness" Value="2"/>
+            <Setter Property="Fill" Value="#00E5CC"/>
+            <Setter Property="Stroke" Value="#00E5CC"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+
+        <Style x:Key="ThreatDot" TargetType="Ellipse" BasedOn="{StaticResource ThreatIndicator}">
+            <Setter Property="Width" Value="4"/>
+            <Setter Property="Height" Value="4"/>
+            <Setter Property="Fill" Value="#F59E0B"/>
+            <Setter Property="Stroke" Value="#F59E0B"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border CornerRadius="8" Background="{DynamicResource CardBg}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{DynamicResource HoverBg}" CornerRadius="8,8,0,0" Padding="15,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="12" Height="12" Fill="#EF4444" Margin="0,0,8,0"/>
+                        <TextBlock Text="GLOBAL THREAT MAP" FontSize="12" FontWeight="600" Foreground="{DynamicResource TextSecondary}"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1" Text="{Binding GlobalThreatLevel}" FontSize="11" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding TotalActiveThreats}" FontSize="11" Foreground="#00E5CC" FontWeight="500"/>
+                        <TextBlock Text=" • " Foreground="{DynamicResource TextSecondary}"/>
+                        <TextBlock Text="{Binding LastUpdated, StringFormat='Updated {0:HH:mm}'}" FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- World Map Background -->
+            <Border Grid.Row="1" Background="{DynamicResource AppBg}" Margin="15,10" CornerRadius="4">
+                <Canvas x:Name="MapCanvas" Background="Transparent" ClipToBounds="True">
+                    <!-- Simplified world map outline (would be replaced with actual map image) -->
+                    <Path Data="M50,80 Q60,70 80,75 Q100,80 120,70 Q140,75 160,70 Q180,80 200,75 Q220,85 240,80 Q260,90 280,85 Q300,95 320,90 Q340,100 350,95 L350,150 Q340,155 320,150 Q300,160 280,155 Q260,165 240,160 Q220,170 200,165 Q180,175 160,170 Q140,180 120,175 Q100,185 80,180 Q60,190 50,185 Z"
+                          Fill="#1E293B" Stroke="#374151" StrokeThickness="1" Opacity="0.3"/>
+
+                    <!-- Threat indicators will be added here programmatically -->
+                </Canvas>
+            </Border>
+
+            <!-- Stats Footer -->
+            <Border Grid.Row="2" Background="{DynamicResource HoverBg}" CornerRadius="0,0,8,8" Padding="15,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Vertical">
+                        <TextBlock Text="TOP THREAT TYPES" FontSize="10" FontWeight="600" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,5"/>
+                        <ItemsControl ItemsSource="{Binding TopThreatTypes}" Margin="0,0,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <Ellipse Width="6" Height="6" Fill="#F59E0B" Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding Key}" FontSize="9" Foreground="{DynamicResource TextSecondary}"/>
+                                        <TextBlock Text="{Binding Value, StringFormat=' ({0})'}" FontSize="9" Foreground="{DynamicResource TextSecondary}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Vertical">
+                        <TextBlock Text="HOTSPOTS" FontSize="10" FontWeight="600" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,5"/>
+                        <ItemsControl ItemsSource="{Binding TopCountries}" Margin="0,0,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <Rectangle Width="6" Height="6" Fill="#EF4444" Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding Key}" FontSize="9" Foreground="{DynamicResource TextSecondary}"/>
+                                        <TextBlock Text="{Binding Value, StringFormat=' ({0})'}" FontSize="9" Foreground="{DynamicResource TextSecondary}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Vertical">
+                        <TextBlock Text="RECENT ALERTS" FontSize="10" FontWeight="600" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,5"/>
+                        <ItemsControl ItemsSource="{Binding RecentAlerts}" Margin="0,0,0,0" MaxHeight="60">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        <Ellipse Width="6" Height="6" Fill="#EF4444" Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding ThreatName}" FontSize="9" Foreground="{DynamicResource TextSecondary}" MaxWidth="80" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,398 @@
+﻿<Page x:Class="ShieldX.Views.AboutPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:ShieldX.Views"
+      mc:Ignorable="d"
+      d:DesignHeight="600" d:DesignWidth="950"
+      Title="About"
+      Background="{DynamicResource AppBg}"
+      FontFamily="Segoe UI Variable Display, Segoe UI, Inter">
+
+    <Page.Resources>
+        <!-- Subtle pulse for hero icon only -->
+        <Storyboard x:Key="ShieldPulse" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="0.75" To="1.0"
+                             Duration="0:0:2.5" AutoReverse="True"/>
+        </Storyboard>
+
+        <!-- Card Style -->
+        <Style x:Key="AboutCard" TargetType="Border">
+            <Setter Property="Background" Value="#161B27"/>
+            <Setter Property="BorderBrush" Value="#21262D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+
+        <!-- Logo Card Style -->
+        <Style x:Key="LogoCard" TargetType="Border">
+            <Setter Property="Background" Value="#0D1117"/>
+            <Setter Property="BorderBrush" Value="#00E5CC"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14,14,14,12"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="36,24,36,36">
+
+            <!-- ═══════════════════════════════════════
+                 HERO HEADER
+            ═══════════════════════════════════════ -->
+            <Border CornerRadius="10"
+                    Margin="0,0,0,16"
+                    BorderBrush="#00E5CC"
+                    BorderThickness="1"
+                    ClipToBounds="True">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#0D1117" Offset="0"/>
+                        <GradientStop Color="#0D2626" Offset="0.55"/>
+                        <GradientStop Color="#004040" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="30,22,30,22">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Animated App Icon -->
+                    <Border Grid.Column="0"
+                            Width="78" Height="78"
+                            CornerRadius="14"
+                            Background="#0A1F1F"
+                            BorderBrush="#00E5CC"
+                            BorderThickness="1.5"
+                            Margin="0,0,24,0"
+                            VerticalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#00E5CC" BlurRadius="12"
+                                              ShadowDepth="0" Opacity="0.5"/>
+                        </Border.Effect>
+                        <Border.Triggers>
+                            <EventTrigger RoutedEvent="Border.Loaded">
+                                <BeginStoryboard Storyboard="{StaticResource ShieldPulse}"/>
+                            </EventTrigger>
+                        </Border.Triggers>
+                        <Image Source="pack://application:,,,/assets/shieldx.ico"
+                               Width="48" Height="48"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
+
+                    <!-- Title block -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="ShieldX Professional Antivirus"
+                                   FontSize="30"
+                                   FontWeight="700"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   Margin="0,0,0,7"/>
+                        <TextBlock Text="Military-grade protection. Zero compromises."
+                                   FontSize="15"
+                                   Foreground="{DynamicResource TextSecondary}"
+                                   Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="#0A2020"
+                                    BorderBrush="#00E5CC"
+                                    BorderThickness="1"
+                                    CornerRadius="5"
+                                    Padding="12,5">
+                                <TextBlock Text="Version 3.1.1"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#00E5CC"/>
+                            </Border>
+                            <Border Background="#0A200A"
+                                    BorderBrush="#2EA04D"
+                                    BorderThickness="1"
+                                    CornerRadius="5"
+                                    Padding="12,5"
+                                    Margin="10,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="7" Height="7"
+                                             Fill="#2EA04D"
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,7,0"/>
+                                    <TextBlock Text="Protected"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="#2EA04D"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════════════════════════
+                 DEVELOPER CARD
+            ═══════════════════════════════════════ -->
+            <Border Style="{StaticResource AboutCard}">
+                <StackPanel>
+                    <Border Background="#0F1520"
+                            CornerRadius="10,10,0,0"
+                            Padding="22,13">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="3" Background="#00E5CC" CornerRadius="2"/>
+                            <TextBlock Text="DEVELOPER"
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="#00E5CC"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Rectangle Height="1" Fill="#21262D"/>
+
+                    <Grid Margin="24,20,24,22">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Avatar with initials -->
+                        <Grid Grid.Column="0" Width="76" Height="76"
+                              Margin="0,0,22,0" VerticalAlignment="Top">
+                            <Ellipse Fill="#0A2020"/>
+                            <Ellipse Stroke="#00E5CC" StrokeThickness="2"/>
+                            <TextBlock Text="SH"
+                                       FontSize="24" FontWeight="Bold"
+                                       Foreground="#00E5CC"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Dev info -->
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="SYED HAMZA ALI SHAH"
+                                       FontSize="21" FontWeight="700"
+                                       Foreground="#00E5CC"
+                                       Margin="0,0,0,5"/>
+                            <TextBlock Text="Cybersecurity Developer, Software Engineer &amp; Security Researcher"
+                                       FontSize="14" FontStyle="Italic"
+                                       Foreground="{DynamicResource TextSecondary}"
+                                       Margin="0,0,0,10"/>
+                            <Rectangle Height="1" Fill="#21262D" Margin="0,0,0,10"/>
+                            <TextBlock Text="Passionate about building next-generation cybersecurity tools to protect users worldwide."
+                                       FontSize="13"
+                                       Foreground="{DynamicResource TextSecondary}"
+                                       TextWrapping="Wrap"
+                                       LineHeight="22"
+                                       Margin="0,0,0,18"/>
+
+                            <!-- Social buttons — using Button with custom template -->
+                            <WrapPanel>
+                                <Button Content="⌥  GitHub"
+                                        Padding="14,7"
+                                        Background="Transparent"
+                                        Foreground="#00E5CC"
+                                        BorderBrush="#00E5CC"
+                                        BorderThickness="1"
+                                        Cursor="Hand"
+                                        Margin="0,0,10,0"/>
+                                <Button Content="in  LinkedIn"
+                                        Padding="14,7"
+                                        Background="Transparent"
+                                        Foreground="#00E5CC"
+                                        BorderBrush="#00E5CC"
+                                        BorderThickness="1"
+                                        Cursor="Hand"
+                                        Margin="0,0,10,0"/>
+                                <Button Content="✉  Email"
+                                        Padding="14,7"
+                                        Background="Transparent"
+                                        Foreground="#00E5CC"
+                                        BorderBrush="#00E5CC"
+                                        BorderThickness="1"
+                                        Cursor="Hand"
+                                        Click="EmailButton_Click"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════════════════════════════════════
+                 SOFTWARE INFO CARD  (no circles!)
+            ═══════════════════════════════════════ -->
+            <Border Style="{StaticResource AboutCard}">
+                <StackPanel>
+                    <Border Background="#0F1520"
+                            CornerRadius="10,10,0,0"
+                            Padding="22,13">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="3" Background="#00E5CC" CornerRadius="2"/>
+                            <TextBlock Text="SOFTWARE INFO"
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="#00E5CC"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Rectangle Height="1" Fill="#21262D"/>
+
+                    <!-- Single Grid — columns stay aligned across all rows -->
+                    <Grid Margin="24,18,24,22">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name"
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="ShieldX Professional Antivirus"
+                                   FontSize="13" FontWeight="600"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+
+                        <Rectangle Grid.Row="1" Grid.ColumnSpan="2"
+                                   Height="1" Fill="#21262D" Margin="0,0,0,14"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Version"
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="3.1.1"
+                                   FontSize="13" FontWeight="600"
+                                   Foreground="#00E5CC"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+
+                        <Rectangle Grid.Row="3" Grid.ColumnSpan="2"
+                                   Height="1" Fill="#21262D" Margin="0,0,0,14"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Edition"
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="Professional Edition"
+                                   FontSize="13" FontWeight="600"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+
+                        <Rectangle Grid.Row="5" Grid.ColumnSpan="2"
+                                   Height="1" Fill="#21262D" Margin="0,0,0,14"/>
+
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Platform"
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+                        <TextBlock Grid.Row="6" Grid.Column="1"
+                                   Text="Windows 10/11 (.NET 8 WPF)"
+                                   FontSize="13" FontWeight="600"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   VerticalAlignment="Center" Margin="0,0,0,14"/>
+
+                        <Rectangle Grid.Row="7" Grid.ColumnSpan="2"
+                                   Height="1" Fill="#21262D" Margin="0,0,0,14"/>
+
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="License"
+                                   FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="1"
+                                   Text="ShieldX Security Labs — Proprietary"
+                                   FontSize="13" FontWeight="600"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════════════════════════════════════
+                 SUPPORT & LICENSING
+            ═══════════════════════════════════════ -->
+            <Border Style="{StaticResource AboutCard}">
+                <StackPanel>
+                    <Border Background="#0F1520"
+                            CornerRadius="10,10,0,0"
+                            Padding="22,13">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="3" Background="#00E5CC" CornerRadius="2"/>
+                            <TextBlock Text="SUPPORT &amp; LICENSING"
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="#00E5CC"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Rectangle Height="1" Fill="#21262D"/>
+
+                    <StackPanel Margin="24,18,24,22">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="115"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Licensed to:"
+                                       FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="ShieldX Security Labs"
+                                       FontSize="13" FontWeight="600"
+                                       Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="115"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Support:"
+                                       FontSize="13" Foreground="{DynamicResource TextSecondary}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" FontSize="13"
+                                       VerticalAlignment="Center">
+                                <Hyperlink NavigateUri="mailto:syedhamzaalishah31324@gmail.com"
+                                           RequestNavigate="Hyperlink_RequestNavigate"
+                                           Foreground="#00E5CC" TextDecorations="None">
+                                    syedhamzaalishah31324@gmail.com
+                                </Hyperlink>
+                            </TextBlock>
+                        </Grid>
+
+                        <Border Background="#1A0C00"
+                                BorderBrush="#C0502A"
+                                BorderThickness="1"
+                                CornerRadius="7"
+                                Padding="16,13">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <TextBlock Text="⚠"
+                                               FontSize="14" Foreground="#FF6B35"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <TextBlock Text="Software is not open source."
+                                               FontSize="13" FontWeight="Bold"
+                                               Foreground="#FF6B35"/>
+                                </StackPanel>
+                                <TextBlock Text="•  Unauthorized copying, distribution, or modification is strictly prohibited."
+                                           FontSize="12" Foreground="#A05030"
+                                           TextWrapping="Wrap" Margin="0,0,0,5"/>
+                                <TextBlock Text="•  This product is licensed for use by authorized ShieldX personnel only."
+                                           FontSize="12" Foreground="#A05030"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

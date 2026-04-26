@@ -1,0 +1,610 @@
+<Window x:Class="ShieldX.Views.InstallerManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ShieldX Installer"
+        Width="900" Height="620"
+        WindowStartupLocation="CenterScreen"
+        Background="#1A1F2E"
+        Foreground="{DynamicResource TextPrimary}"
+        FontFamily="Segoe UI Variable Display"
+        ResizeMode="CanMinimize"
+        WindowStyle="SingleBorderWindow">
+
+    <Window.Resources>
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#252D3D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2D3748"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button"
+               BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#00E5CC" Offset="0"/>
+                        <GradientStop Color="#00B8A3" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="#0D1117"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button"
+               BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#1A0D0D"/>
+            <Setter Property="Foreground" Value="#EF4444"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ TOP HEADER BAR ══ -->
+        <Border Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#0D2818" Offset="0"/>
+                    <GradientStop Color="#1A1F2E" Offset="0.4"/>
+                    <GradientStop Color="#1A0D2E" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="24,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="8"
+                            Margin="0,0,12,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0"
+                                                 EndPoint="1,1">
+                                <GradientStop Color="#00E5CC" Offset="0"/>
+                                <GradientStop Color="#7C3AED" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="🛡" FontSize="20"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="ShieldX Installer"
+                                   FontSize="18" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimary}"/>
+                        <TextBlock Text="Manage ShieldX Professional Antivirus installation"
+                                   Foreground="{DynamicResource TextSecondary}" FontSize="11"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Tab navigation -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <Button Content="Installed"
+                            x:Name="TabInstalled"
+                            Style="{StaticResource PrimaryButton}"
+                            Click="TabInstalled_Click"
+                            Margin="0,0,4,0" Padding="20,8"/>
+                    <Button Content="Available"
+                            x:Name="TabAvailable"
+                            Style="{StaticResource ActionButton}"
+                            Click="TabAvailable_Click"
+                            Margin="0,0,4,0" Padding="20,8"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2"
+                           Text="v3.1.1"
+                           Foreground="{DynamicResource TextSecondary}" FontSize="12"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Status bar -->
+        <Border Grid.Row="1" Background="{DynamicResource HoverBg}"
+                Padding="24,8">
+            <StackPanel Orientation="Horizontal">
+                <Border Background="#0D2818" CornerRadius="4"
+                        Padding="8,3" Margin="0,0,12,0">
+                    <TextBlock Text="All installations are up to date."
+                               Foreground="#10B981" FontSize="12"/>
+                </Border>
+                <TextBlock Text="Last checked: Just now"
+                           Foreground="{DynamicResource TextMuted}" FontSize="12"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ MAIN CONTENT ══ -->
+        <ScrollViewer Grid.Row="2"
+                      VerticalScrollBarVisibility="Auto"
+                      Background="#1A1F2E">
+            <StackPanel Margin="24,16">
+
+                <!-- ── INSTALLED TAB ── -->
+                <StackPanel x:Name="InstalledPanel">
+
+                    <!-- Main installation card -->
+                    <Border Background="{DynamicResource HoverBg}" CornerRadius="8"
+                            Padding="0" Margin="0,0,0,12"
+                            ClipToBounds="True">
+                        <Grid>
+                            <!-- Colored top border -->
+                            <Border Height="3" VerticalAlignment="Top">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="1,0">
+                                        <GradientStop Color="#00E5CC"
+                                                      Offset="0"/>
+                                        <GradientStop Color="#7C3AED"
+                                                      Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+
+                            <Grid Margin="20,12,20,16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- App header row -->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Icon -->
+                                    <Border Grid.Column="0"
+                                            Width="56" Height="56"
+                                            CornerRadius="10"
+                                            Margin="0,0,16,0">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0"
+                                                                 EndPoint="1,1">
+                                                <GradientStop Color="#00E5CC"
+                                                              Offset="0"/>
+                                                <GradientStop Color="#7C3AED"
+                                                              Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="🛡" FontSize="26"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <!-- Name and version -->
+                                    <StackPanel Grid.Column="1"
+                                                VerticalAlignment="Center">
+                                        <TextBlock
+                                            Text="ShieldX Professional Antivirus"
+                                            FontSize="18" FontWeight="Bold"
+                                            Foreground="{DynamicResource TextPrimary}"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,4,0,0">
+                                            <Border Background="#0D2818"
+                                                    CornerRadius="4"
+                                                    Padding="8,3"
+                                                    Margin="0,0,8,0">
+                                                <TextBlock Text="3.1.1 (Latest)"
+                                                           Foreground="#10B981"
+                                                           FontSize="11"
+                                                           FontWeight="Bold"/>
+                                            </Border>
+                                            <Border Background="#1A150D"
+                                                    CornerRadius="4"
+                                                    Padding="8,3">
+                                                <TextBlock Text=".NET 8 · WPF · Windows 10/11"
+                                                           Foreground="#F59E0B"
+                                                           FontSize="11"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock
+                                            Text="Protecting your system with advanced detection and monitoring"
+                                            Foreground="{DynamicResource TextSecondary}"
+                                            FontSize="12"
+                                            Margin="0,4,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Action buttons — like VS Installer -->
+                                    <StackPanel Grid.Column="2"
+                                                VerticalAlignment="Center">
+                                        <Button Content="▶  Launch"
+                                                x:Name="LaunchBtn"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="Launch_Click"
+                                                Margin="0,0,0,6"
+                                                Width="140"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="⟳  Update"
+                                                    x:Name="UpdateBtn"
+                                                    Style="{StaticResource ActionButton}"
+                                                    Click="Update_Click"
+                                                    Margin="0,0,4,0"
+                                                    Width="88"
+                                                    FontSize="12"/>
+                                            <Button Content="↕  Modify"
+                                                    x:Name="ModifyBtn"
+                                                    Style="{StaticResource ActionButton}"
+                                                    Click="Modify_Click"
+                                                    Margin="0,0,4,0"
+                                                    Width="88"
+                                                    FontSize="12"/>
+                                            <Button Content="▼"
+                                                    x:Name="MoreBtn"
+                                                    Style="{StaticResource ActionButton}"
+                                                    Click="More_Click"
+                                                    Width="36"
+                                                    FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Separator -->
+                                <Border Grid.Row="1"
+                                        Background="#2D3748"
+                                        Height="1"
+                                        Margin="0,12,0,12"/>
+
+                                <!-- Components grid -->
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Component 1 -->
+                                    <StackPanel Grid.Column="0"
+                                                Margin="0,0,16,0">
+                                        <TextBlock Text="PROTECTION"
+                                                   Foreground="{DynamicResource TextMuted}"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Margin="0,0,0,6"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,0,3">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Real-Time Protection"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,0,3">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Ransomware Shield"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="USB Auto-Scan"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Component 2 -->
+                                    <StackPanel Grid.Column="1"
+                                                Margin="0,0,16,0">
+                                        <TextBlock Text="SECURITY TOOLS"
+                                                   Foreground="{DynamicResource TextMuted}"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Margin="0,0,0,6"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,0,3">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Password Vault"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,0,3">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Dark Web Monitor"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Threat Scanner"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Component 3 -->
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="MONITORING"
+                                                   Foreground="{DynamicResource TextMuted}"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+
+                                                   Margin="0,0,0,6"/>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,0,3">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Network Monitor"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,0,0,3">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Process Monitor"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="●"
+                                                       Foreground="#10B981"
+                                                       Margin="0,0,6,0"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Vulnerability Scanner"
+                                                       Foreground="{DynamicResource TextSecondary}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Dropdown More menu -->
+                    <Border x:Name="MoreMenu"
+                            Background="{DynamicResource HoverBg}"
+                            CornerRadius="8"
+                            Padding="8"
+                            Margin="0,0,0,12"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Right"
+                            Width="220">
+                        <StackPanel>
+                            <Button Content="🔧  Repair Installation"
+                                    Style="{StaticResource ActionButton}"
+                                    Click="Repair_Click"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Padding="12,10"
+                                    Margin="0,0,0,2"/>
+                            <Button Content="📁  Open Install Folder"
+                                    Style="{StaticResource ActionButton}"
+                                    Click="OpenFolder_Click"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Padding="12,10"
+                                    Margin="0,0,0,2"/>
+                            <Button Content="📋  Copy Install Path"
+                                    Style="{StaticResource ActionButton}"
+                                    Click="CopyPath_Click"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Padding="12,10"
+                                    Margin="0,0,0,2"/>
+                            <Border Background="#2D3748" Height="1"
+                                    Margin="8,4"/>
+                            <Button Content="🗑  Uninstall"
+                                    Style="{StaticResource DangerButton}"
+                                    Click="Uninstall_Click"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    Padding="12,10"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Installation details -->
+                    <Border Background="{DynamicResource HoverBg}" CornerRadius="8"
+                            Padding="20" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="INSTALLED VERSION"
+                                           Foreground="{DynamicResource TextMuted}"
+                                           FontSize="10" FontWeight="Bold"
+                                           Margin="0,0,0,4"/>
+                                <TextBlock Text="3.1.1"
+                                           Foreground="#00E5CC"
+                                           FontSize="16"
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Latest Release"
+                                           Foreground="{DynamicResource TextSecondary}"
+                                           FontSize="11"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="INSTALL LOCATION"
+                                           Foreground="{DynamicResource TextMuted}"
+                                           FontSize="10" FontWeight="Bold"
+                                           Margin="0,0,0,4"/>
+                                <TextBlock x:Name="InstallPathText"
+                                           Text="C:\Program Files\ShieldX"
+                                           Foreground="{DynamicResource TextPrimary}"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="DISK USAGE"
+                                           Foreground="{DynamicResource TextMuted}"
+                                           FontSize="10" FontWeight="Bold"
+                                           Margin="0,0,0,4"/>
+                                <TextBlock x:Name="DiskUsageText"
+                                           Text="Calculating..."
+                                           Foreground="{DynamicResource TextPrimary}"
+                                           FontSize="16"
+                                           FontWeight="Bold"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="STATUS"
+                                           Foreground="{DynamicResource TextMuted}"
+                                           FontSize="10" FontWeight="Bold"
+                                           Margin="0,0,0,4"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Background="#0D2818"
+                                            CornerRadius="4"
+                                            Padding="8,4">
+                                        <TextBlock Text="● Running"
+                                                   Foreground="#10B981"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- ── AVAILABLE TAB ── -->
+                <StackPanel x:Name="AvailablePanel"
+                            Visibility="Collapsed">
+                    <Border Background="{DynamicResource HoverBg}" CornerRadius="8"
+                            Padding="30"
+                            HorizontalAlignment="Center"
+                            Width="500" Margin="0,40,0,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="✅" FontSize="40"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock
+                                Text="No updates available"
+                                FontSize="18" FontWeight="Bold"
+                                Foreground="{DynamicResource TextPrimary}"
+                                HorizontalAlignment="Center"
+                                Margin="0,12,0,6"/>
+                            <TextBlock
+                                Text="ShieldX Professional is up to date"
+                                Foreground="{DynamicResource TextSecondary}" FontSize="13"
+                                HorizontalAlignment="Center"/>
+                            <Button Content="🔄  Check for Updates"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Margin="0,20,0,0"
+                                    Padding="20,10"
+                                    HorizontalAlignment="Center"
+                                    Click="CheckUpdates_Click"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ══ BOTTOM BAR ══ -->
+        <Border Grid.Row="3" Background="#141820"
+                Padding="24,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="Release notes"
+                               Foreground="#00E5CC"
+                               FontSize="12" Cursor="Hand"
+                               Margin="0,0,20,0">
+                        <TextBlock.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                Command="{Binding ReleaseNotesCommand}"/>
+                        </TextBlock.InputBindings>
+                    </TextBlock>
+                    <TextBlock Text="Developer news"
+                               Foreground="{DynamicResource TextSecondary}"
+                               FontSize="12" Cursor="Hand"
+                               Margin="0,0,20,0"/>
+                    <TextBlock Text="Support"
+                               Foreground="{DynamicResource TextSecondary}"
+                               FontSize="12" Cursor="Hand"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock
+                        Text="Installer version 1.0.0"
+                        Foreground="{DynamicResource TextMuted}" FontSize="11"
+                        Margin="0,0,16,0"
+                        VerticalAlignment="Center"/>
+                    <Button Content="Close"
+                            Style="{StaticResource ActionButton}"
+                            Click="Close_Click"
+                            Width="90"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+

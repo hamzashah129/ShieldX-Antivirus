@@ -1,0 +1,149 @@
+<UserControl x:Class="ShieldX.Views.ResourceMonitorWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    <Border Background="#F5F5F5" Padding="16">
+        <StackPanel Orientation="Vertical">
+            
+            <!-- Status Header -->
+            <Border Background="#388E3C" CornerRadius="8" Padding="12" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚠" FontSize="18" Foreground="{DynamicResource TextPrimary}" Margin="0,0,12,0"
+                               Visibility="{Binding IsHighLoad, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock Text="{Binding ResourceStatus}" FontSize="14" Foreground="{DynamicResource TextPrimary}" 
+                               FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- Resources Grid -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- CPU Usage Card -->
+                <Border Grid.Column="0" Background="White" CornerRadius="8" 
+                        BorderThickness="1" BorderBrush="#E0E0E0" Padding="12" Margin="0,0,6,0">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="CPU" FontSize="12" Foreground="#666666" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CpuUsage, StringFormat='{}{0:F1}'}" 
+                                       FontSize="20" Foreground="#1976D2" FontWeight="Bold" Margin="0,0,2,0" />
+                            <TextBlock Text="%" FontSize="20" Foreground="#1976D2" FontWeight="Bold" Margin="0,0,0,0" />
+                        </StackPanel>
+                        
+                        <!-- CPU Progress Bar -->
+                        <ProgressBar Value="{Binding CpuUsage}" Maximum="100" Height="4" 
+                                     Background="#E0E0E0" Foreground="#1976D2" Margin="0,8,0,8" />
+                        
+                        <!-- CPU Stats -->
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,12,0">
+                                <TextBlock Text="Avg: " FontSize="11" Foreground="#999999" />
+                                <TextBlock Text="{Binding CpuAverage, StringFormat='{}{0:F1}'}" 
+                                           FontSize="11" Foreground="#333333" />
+                                <TextBlock Text="%" FontSize="11" Foreground="#333333" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Peak: " FontSize="11" Foreground="#999999" />
+                                <TextBlock Text="{Binding CpuPeak, StringFormat='{}{0:F1}'}" 
+                                           FontSize="11" Foreground="#333333" />
+                                <TextBlock Text="%" FontSize="11" Foreground="#333333" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- RAM Usage Card -->
+                <Border Grid.Column="1" Background="White" CornerRadius="8" 
+                        BorderThickness="1" BorderBrush="#E0E0E0" Padding="12" Margin="6,0,6,0">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Memory" FontSize="12" Foreground="#666666" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding RamUsage, StringFormat='{}{0:F1}'}" 
+                                       FontSize="20" Foreground="#388E3C" FontWeight="Bold" Margin="0,0,2,0" />
+                            <TextBlock Text="%" FontSize="20" Foreground="#388E3C" FontWeight="Bold" Margin="0,0,0,0" />
+                        </StackPanel>
+                        
+                        <!-- RAM Progress Bar -->
+                        <ProgressBar Value="{Binding RamUsage}" Maximum="100" Height="4" 
+                                     Background="#E0E0E0" Foreground="#388E3C" Margin="0,8,0,8" />
+                        
+                        <!-- RAM Info -->
+                        <TextBlock Text="{Binding MemoryInfo}" FontSize="11" Foreground="#999999" Margin="0,0,0,8" />
+                        
+                        <!-- RAM Stats -->
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,12,0">
+                                <TextBlock Text="Avg: " FontSize="11" Foreground="#999999" />
+                                <TextBlock Text="{Binding RamAverage, StringFormat='{}{0:F1}'}" 
+                                           FontSize="11" Foreground="#333333" />
+                                <TextBlock Text="%" FontSize="11" Foreground="#333333" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Peak: " FontSize="11" Foreground="#999999" />
+                                <TextBlock Text="{Binding RamPeak, StringFormat='{}{0:F1}'}" 
+                                           FontSize="11" Foreground="#333333" />
+                                <TextBlock Text="%" FontSize="11" Foreground="#333333" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Disk Usage Card -->
+                <Border Grid.Column="2" Background="White" CornerRadius="8" 
+                        BorderThickness="1" BorderBrush="#E0E0E0" Padding="12" Margin="6,0,0,0">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Disk (C:)" FontSize="12" Foreground="#666666" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding DiskUsage, StringFormat='{}{0:F1}'}" 
+                                       FontSize="20" Foreground="#F57C00" FontWeight="Bold" Margin="0,0,2,0" />
+                            <TextBlock Text="%" FontSize="20" Foreground="#F57C00" FontWeight="Bold" Margin="0,0,0,0" />
+                        </StackPanel>
+                        
+                        <!-- Disk Progress Bar -->
+                        <ProgressBar Value="{Binding DiskUsage}" Maximum="100" Height="4" 
+                                     Background="#E0E0E0" Foreground="#F57C00" Margin="0,8,0,8" />
+                        
+                        <!-- Disk Info -->
+                        <TextBlock Text="{Binding DiskInfo}" FontSize="11" Foreground="#999999" Margin="0,0,0,8" />
+                        
+                        <!-- Disk Stats -->
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,12,0">
+                                <TextBlock Text="Avg: " FontSize="11" Foreground="#999999" />
+                                <TextBlock Text="{Binding DiskAverage, StringFormat='{}{0:F1}'}" 
+                                           FontSize="11" Foreground="#333333" />
+                                <TextBlock Text="%" FontSize="11" Foreground="#333333" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Peak: " FontSize="11" Foreground="#999999" />
+                                <TextBlock Text="{Binding DiskPeak, StringFormat='{}{0:F1}'}" 
+                                           FontSize="11" Foreground="#333333" />
+                                <TextBlock Text="%" FontSize="11" Foreground="#333333" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ShieldX Memory Usage -->
+            <Border Background="White" CornerRadius="8" BorderThickness="1" BorderBrush="#E0E0E0" Padding="12">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <TextBlock Text="ShieldX Memory" FontSize="12" Foreground="#666666" FontWeight="SemiBold" Margin="0,0,0,4" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ShieldXMemory}" 
+                                       FontSize="14" Foreground="#1565C0" FontWeight="SemiBold" Margin="0,0,4,0" />
+                            <TextBlock Text="MB" FontSize="14" Foreground="#1565C0" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Border>
+</UserControl>

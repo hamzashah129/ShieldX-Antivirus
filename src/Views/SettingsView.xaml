@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="ShieldX.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F0F0F0">
+    <ScrollViewer>
+        <StackPanel Margin="20">
+            <TextBlock Text="Settings" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="#333333"/>
+            
+            <!-- API Keys Section -->
+            <TextBlock Text="API Configuration" FontSize="16" FontWeight="Bold" Margin="0,0,0,15" Foreground="#333333"/>
+            
+            <!-- VirusTotal API Key -->
+            <TextBlock Text="VirusTotal API Key" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <PasswordBox x:Name="VirusTotalKeyBox" Grid.Column="0" Padding="10" Background="White" Margin="0,0,10,0"/>
+                <TextBlock x:Name="VirusTotalStatus" Grid.Column="1" Text="Not Configured" Foreground="#999999" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- AbuseIPDB API Key -->
+            <TextBlock Text="AbuseIPDB API Key" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <PasswordBox x:Name="AbuseIPDBKeyBox" Grid.Column="0" Padding="10" Background="White" Margin="0,0,10,0"/>
+                <TextBlock x:Name="AbuseIPDBStatus" Grid.Column="1" Text="Not Configured" Foreground="#999999" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Google Safe Browsing API Key -->
+            <TextBlock Text="Google Safe Browsing API Key" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <Grid Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <PasswordBox x:Name="GoogleKeyBox" Grid.Column="0" Padding="10" Background="White" Margin="0,0,10,0"/>
+                <TextBlock x:Name="GoogleStatus" Grid.Column="1" Text="Not Configured" Foreground="#999999" VerticalAlignment="Center"/>
+            </Grid>
+
+            <!-- Action Buttons -->
+            <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                <Button Content="Save Settings" Click="SaveSettings_Click" Padding="15,10" Background="#4CAF50" Foreground="White" Margin="0,0,10,0"/>
+                <Button Content="Test VirusTotal" Click="TestVirusTotalKey_Click" Padding="15,10" Background="#2196F3" Foreground="White" Margin="0,0,10,0"/>
+                <Button Content="Test AbuseIPDB" Click="TestAbuseIPDBKey_Click" Padding="15,10" Background="#2196F3" Foreground="White" Margin="0,0,10,0"/>
+                <Button Content="Test Google" Click="TestGoogleKey_Click" Padding="15,10" Background="#2196F3" Foreground="White"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

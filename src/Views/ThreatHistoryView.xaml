@@ -1,0 +1,391 @@
+<UserControl x:Class="ShieldX.Views.ThreatHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBg}">
+    <Grid Margin="20,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="🛡 Threat History"
+                    Foreground="{DynamicResource TextPrimary}"
+                    FontSize="22" FontWeight="Bold"/>
+                <TextBlock
+                    Text="All threats detected and blocked by ShieldX"
+                    Foreground="{DynamicResource TextSecondary}"
+                    FontSize="13" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal">
+                <Button Content="📤 Export CSV"
+                    Command="{Binding ExportCsvCommand}"
+                    Padding="14,8" Margin="0,0,8,0"
+                    Background="{DynamicResource HoverBg}"
+                    Foreground="{DynamicResource TextSecondary}"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderClr}"
+                    Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}">
+                                <ContentPresenter
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Content="🗑 Clear History"
+                    Command="{Binding ClearHistoryCommand}"
+                    Padding="14,8"
+                    Background="#1A0D0D"
+                    Foreground="#EF4444"
+                    BorderThickness="1"
+                    BorderBrush="#EF4444"
+                    Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}">
+                                <ContentPresenter
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Stats cards -->
+        <UniformGrid Grid.Row="1" Columns="4"
+                     Margin="0,0,0,14">
+            <Border Background="{DynamicResource CardBg}"
+                    CornerRadius="10" Padding="16,12"
+                    Margin="0,0,8,0">
+                <StackPanel>
+                    <TextBlock
+                        Text="{Binding TotalBlocked}"
+                        Foreground="#EF4444"
+                        FontSize="26" FontWeight="Bold"/>
+                    <TextBlock Text="Total Blocked"
+                        Foreground="{DynamicResource TextSecondary}"
+                        FontSize="11"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardBg}"
+                    CornerRadius="10" Padding="16,12"
+                    Margin="0,0,8,0">
+                <StackPanel>
+                    <TextBlock
+                        Text="{Binding TodayBlocked}"
+                        Foreground="#F59E0B"
+                        FontSize="26" FontWeight="Bold"/>
+                    <TextBlock Text="Blocked Today"
+                        Foreground="{DynamicResource TextSecondary}"
+                        FontSize="11"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardBg}"
+                    CornerRadius="10" Padding="16,12"
+                    Margin="0,0,8,0">
+                <StackPanel>
+                    <TextBlock
+                        Text="{Binding CriticalCount}"
+                        Foreground="#7C3AED"
+                        FontSize="26" FontWeight="Bold"/>
+                    <TextBlock Text="Critical"
+                        Foreground="{DynamicResource TextSecondary}"
+                        FontSize="11"/>
+                </StackPanel>
+            </Border>
+            <Border Background="{DynamicResource CardBg}"
+                    CornerRadius="10" Padding="16,12">
+                <StackPanel>
+                    <TextBlock
+                        Text="{Binding QuarantinedCount}"
+                        Foreground="#10B981"
+                        FontSize="26" FontWeight="Bold"/>
+                    <TextBlock Text="Quarantined"
+                        Foreground="{DynamicResource TextSecondary}"
+                        FontSize="11"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Search + Filter toolbar -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource CardBg}"
+                CornerRadius="10" Padding="14,10"
+                Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Background="{DynamicResource InputBg}"
+                        CornerRadius="7"
+                        BorderBrush="{DynamicResource BorderClr}"
+                        BorderThickness="1"
+                        Margin="0,0,10,0">
+                    <Grid>
+                        <TextBox
+                            Text="{Binding SearchText,
+                                UpdateSourceTrigger=PropertyChanged}"
+                            Background="Transparent"
+                            Foreground="{DynamicResource TextPrimary}"
+                            BorderThickness="0"
+                            Padding="10,8" FontSize="12"/>
+                        <TextBlock
+                            Text="🔍  Search threats..."
+                            Foreground="{DynamicResource TextMuted}"
+                            FontSize="12" Padding="12,9"
+                            IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                        Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding SearchText}"
+                                            Value="">
+                                            <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal">
+                    <Button Content="All"
+                        Command="{Binding FilterAllCommand}"
+                        Padding="14,7" Margin="0,0,4,0"
+                        Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background"
+                                    Value="{DynamicResource HoverBg}"/>
+                                <Setter Property="Foreground"
+                                    Value="{DynamicResource TextSecondary}"/>
+                                <Setter Property="BorderThickness"
+                                    Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="6"
+                                                Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Quarantined"
+                        Command="{Binding FilterQuarantinedCommand}"
+                        Padding="14,7" Margin="0,0,4,0"
+                        Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background"
+                                    Value="{DynamicResource HoverBg}"/>
+                                <Setter Property="Foreground"
+                                    Value="{DynamicResource TextSecondary}"/>
+                                <Setter Property="BorderThickness"
+                                    Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="6"
+                                                Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Content="Detected"
+                        Command="{Binding FilterDetectedCommand}"
+                        Padding="14,7" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background"
+                                    Value="{DynamicResource HoverBg}"/>
+                                <Setter Property="Foreground"
+                                    Value="{DynamicResource TextSecondary}"/>
+                                <Setter Property="BorderThickness"
+                                    Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="6"
+                                                Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Threats table -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource CardBg}"
+                CornerRadius="12"
+                Padding="20">
+            <Grid>
+                <!-- Empty state -->
+                <StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding HasNoThreats,
+                        Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="✅" FontSize="40"
+                        HorizontalAlignment="Center"/>
+                    <TextBlock Text="No threats in history"
+                        Foreground="{DynamicResource TextPrimary}"
+                        FontSize="16" FontWeight="Bold"
+                        HorizontalAlignment="Center"
+                        Margin="0,12,0,6"/>
+                    <TextBlock
+                        Text="Your system is clean — no threats have been detected"
+                        Foreground="{DynamicResource TextSecondary}"
+                        FontSize="12"
+                        HorizontalAlignment="Center"/>
+                </StackPanel>
+
+            <DataGrid
+                ItemsSource="{Binding FilteredThreats}"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                IsReadOnly="True"
+                Background="Transparent"
+                RowBackground="{DynamicResource RowBg}"
+                AlternatingRowBackground="{DynamicResource AltRowBg}"
+                Foreground="{DynamicResource TextPrimary}"
+                BorderThickness="0"
+                GridLinesVisibility="Horizontal"
+                HorizontalGridLinesBrush="{DynamicResource BorderClr}"
+                HeadersVisibility="Column"
+                Visibility="{Binding HasThreats,
+                    Converter={StaticResource BoolToVis}}">
+
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background"
+                            Value="{DynamicResource DataGridHdr}"/>
+                        <Setter Property="Foreground"
+                            Value="{DynamicResource TextSecondary}"/>
+                        <Setter Property="FontSize" Value="11"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="12,8"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="TIME"
+                        Binding="{Binding BlockedAt,
+                            StringFormat='{}{0:MM/dd HH:mm}'}"
+                        Width="110"/>
+                    <DataGridTextColumn Header="FILE"
+                        Binding="{Binding FileName}"
+                        Width="160"/>
+                    <DataGridTextColumn Header="THREAT"
+                        Binding="{Binding ThreatName}"
+                        Width="160"/>
+                    <DataGridTemplateColumn
+                        Header="SEVERITY" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="4"
+                                    Padding="7,3" Margin="8,4"
+                                    HorizontalAlignment="Left">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#1A150D"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Severity}" Value="Critical">
+                                                    <Setter Property="Background" Value="#1A0D0D"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Severity}" Value="High">
+                                                    <Setter Property="Background" Value="#1A0D0D"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Severity}" Value="Low">
+                                                    <Setter Property="Background" Value="#0D1A1A"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock
+                                        Text="{Binding Severity}"
+                                        FontSize="10"
+                                        FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#F59E0B"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Severity}" Value="Critical">
+                                                        <Setter Property="Foreground" Value="#EF4444"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Severity}" Value="High">
+                                                        <Setter Property="Foreground" Value="#EF4444"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Severity}" Value="Low">
+                                                        <Setter Property="Foreground" Value="#06B6D4"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="ACTION"
+                        Binding="{Binding Action}" Width="110"/>
+                    <DataGridTextColumn Header="PATH"
+                        Binding="{Binding FilePath}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
+
