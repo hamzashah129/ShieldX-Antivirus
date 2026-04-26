@@ -7,114 +7,141 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  CONFIGURATION: Release
 
 jobs:
   create-release:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     
-    - name: Setup .NET
+    - name: Setup .NET 8.0
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: 8.0.x
     
-    - name: Extract Version
+    - name: Extract Version from Tag
       id: version
+      shell: powershell
       run: |
         $tag = "${{ github.ref }}"
         $version = $tag -replace 'refs/tags/v', ''
         Write-Output "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+        Write-Host "Extracted version: $version"
     
-    - name: Import Code Signing Certificate
+    - name: Restore Certificate
+      shell: powershell
       run: |
+        Write-Host "Restoring code signing certificate..."
         $certBytes = [Convert]::FromBase64String("${{ secrets.CODE_SIGNING_CERT }}")
-        [IO.File]::WriteAllBytes("certificates/ShieldX_CodeSigning.pfx", $certBytes)
-        
-        $pwd = ConvertTo-SecureString "${{ secrets.CERT_PASSWORD }}" -Force -AsPlainText
-        Import-PfxCertificate -FilePath "certificates/ShieldX_CodeSigning.pfx" `
-          -CertStoreLocation "Cert:\CurrentUser\My" `
-          -Password $pwd
+        $certPath = "certificates/ShieldX_CodeSigning.pfx"
+        [IO.File]::WriteAllBytes($certPath, $certBytes)
+        Write-Host "Certificate written to: $certPath"
+        $certSize = (Get-Item $certPath).Length
+        Write-Host "Certificate size: $certSize bytes"
     
-    - name: Build and Sign Release
+    - name: Build Release Package
+      shell: powershell
       run: |
-        & .\build-installer.ps1 -SignInstaller
-      env:
-        CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
+        Write-Host "Building release package..." -ForegroundColor Cyan
+        & .\build-installer.ps1 -Version "${{ steps.version.outputs.VERSION }}"
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Host "Build failed with exit code: $LASTEXITCODE" -ForegroundColor Red
+          exit $LASTEXITCODE
+        }
+        
+        Write-Host "Build completed successfully" -ForegroundColor Green
     
     - name: Verify Release Package
+      shell: powershell
       run: |
         $version = "${{ steps.version.outputs.VERSION }}"
         $zipPath = "ShieldX.Installer\output\ShieldX_Professional_v$version.zip"
         
+        Write-Host "Verifying release package at: $zipPath" -ForegroundColor Yellow
+        
         if (Test-Path $zipPath) {
           $size = (Get-Item $zipPath).Length / 1MB
-          Write-Host "✅ Release package found: $zipPath ($size MB)"
+          Write-Host "✅ Package found: $($size.ToString('0.0')) MB" -ForegroundColor Green
         } else {
-          Write-Host "❌ ERROR: Release package not found at $zipPath"
-          Write-Host "Available files in ShieldX.Installer\output:"
+          Write-Host "❌ Package not found!" -ForegroundColor Red
+          Write-Host "Listing ShieldX.Installer\output:" -ForegroundColor Yellow
           Get-ChildItem "ShieldX.Installer\output" -ErrorAction SilentlyContinue | Format-Table Name, Length
           exit 1
         }
     
     - name: Prepare Release Directory
+      shell: powershell
       run: |
         $version = "${{ steps.version.outputs.VERSION }}"
         $releaseDir = "releases"
+        
         New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
         
-        Copy-Item "ShieldX.Installer\output\ShieldX_Professional_v$version.zip" `
-          "$releaseDir\ShieldX_Professional_v$version.zip" -Force
+        $source = "ShieldX.Installer\output\ShieldX_Professional_v$version.zip"
+        $dest = "$releaseDir\ShieldX_Professional_v$version.zip"
         
-        Write-Host "Release files:"
-        Get-ChildItem $releaseDir | Format-Table Name, @{Name="Size (MB)"; Expression={[math]::Round($_.Length/1MB, 2)}}
+        Copy-Item $source $dest -Force
+        
+        $size = (Get-Item $dest).Length / 1MB
+        Write-Host "Release ready: $dest ($($size.ToString('0.0')) MB)"
     
     - name: Generate Release Notes
-      id: release_notes
+      shell: powershell
       run: |
         $version = "${{ steps.version.outputs.VERSION }}"
+        $timestamp = Get-Date -Format "MMMM dd, yyyy HH:mm:ss"
+        
         $notes = @"
 ## ShieldX Professional Antivirus v$version
 
 **Release Information**
-- Version: $version
-- Release Date: $(Get-Date -Format 'MMMM dd, yyyy')
-- Built: $(Get-Date -Format 'HH:mm:ss UTC')
-- Code Signed: ✅ Yes (Self-Signed Certificate)
+- **Version**: $version
+- **Release Date**: $timestamp (UTC)
+- **Type**: Production Release
 
 **What's Included**
-- Self-contained application (includes .NET 8.0 runtime)
-- Real-time threat protection
-- Built-in threat scanner
-- Dark/Light theme support
-- Auto-update mechanism
+- ✅ Self-contained Windows application (70+ MB)
+- ✅ Integrated .NET 8.0 runtime
+- ✅ Real-time threat protection
+- ✅ Built-in threat scanner
+- ✅ Dark/Light theme support
+- ✅ Automatic update mechanism
+- ✅ Advanced settings panel
 
-**Installation**
-1. Download ShieldX_Professional_v$version.zip
+**Installation Instructions**
+1. Download `ShieldX_Professional_v$version.zip`
 2. Extract to desired location
-3. Run ShieldX.exe to start
-
-**Verification**
-- Application is digitally code-signed
-- Thumbprint: D27B8EEC9DFE10EBDFD3B7B1BAAD218E3304CCA9
-- Valid until: 2029-04-26
+3. Run `ShieldX.exe` (administrative privileges recommended)
+4. Complete the setup wizard
 
 **System Requirements**
-- Windows 7 SP1 or later
-- .NET 8.0 (included in package)
-- 256 MB RAM minimum
+- **OS**: Windows 7 SP1 or later
+- **RAM**: 256 MB minimum
+- **Disk**: 100 MB free space
+- **.NET**: Included in package
 
-For more information, visit: https://github.com/${{ github.repository }}
+**Security**
+- 🔐 Application digitally code-signed
+- 🔐 Certificate Thumbprint: D27B8EEC9DFE10EBDFD3B7B1BAAD218E3304CCA9
+- 🔐 Valid until: April 26, 2029
+
+**Documentation**
+For detailed documentation and additional features, visit the [GitHub Repository](https://github.com/${{ github.repository }})
+
+---
+*ShieldX Antivirus - Professional Edition*
 "@
+        
         Add-Content -Path "release-notes.md" -Value $notes
+        Write-Host "Release notes generated"
     
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         files: releases/*
         body_path: release-notes.md
@@ -123,12 +150,12 @@ For more information, visit: https://github.com/${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Upload Release Artifacts
+    - name: Upload to Release Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ShieldX_Release_v${{ steps.version.outputs.VERSION }}
-        path: releases/*
-        retention-days: 30
+        path: releases/
+        retention-days: 90
         path: releases
         retention-days: 30
     
