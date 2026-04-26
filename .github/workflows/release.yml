@@ -32,21 +32,14 @@ jobs:
         Write-Output "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         Write-Host "Extracted version: $version"
     
-    - name: Restore Certificate
-      shell: powershell
-      run: |
-        Write-Host "Restoring code signing certificate..."
-        $certBytes = [Convert]::FromBase64String("${{ secrets.CODE_SIGNING_CERT }}")
-        $certPath = "certificates/ShieldX_CodeSigning.pfx"
-        [IO.File]::WriteAllBytes($certPath, $certBytes)
-        Write-Host "Certificate written to: $certPath"
-        $certSize = (Get-Item $certPath).Length
-        Write-Host "Certificate size: $certSize bytes"
-    
     - name: Build Release Package
       shell: powershell
       run: |
         Write-Host "Building release package..." -ForegroundColor Cyan
+        Write-Host "Working directory: $(Get-Location)" -ForegroundColor Gray
+        Write-Host "Files in current directory:" -ForegroundColor Gray
+        Get-ChildItem -Filter "build-installer.ps1" | ForEach-Object { Write-Host "  ✓ $($_.Name)" }
+        
         & .\build-installer.ps1 -Version "${{ steps.version.outputs.VERSION }}"
         
         if ($LASTEXITCODE -ne 0) {
