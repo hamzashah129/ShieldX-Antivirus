@@ -46,15 +46,32 @@ jobs:
       env:
         CERT_PASSWORD: ${{ secrets.CERT_PASSWORD }}
     
-    - name: Create Release Archive
+    - name: Verify Release Package
+      run: |
+        $version = "${{ steps.version.outputs.VERSION }}"
+        $zipPath = "ShieldX.Installer\output\ShieldX_Professional_v$version.zip"
+        
+        if (Test-Path $zipPath) {
+          $size = (Get-Item $zipPath).Length / 1MB
+          Write-Host "✅ Release package found: $zipPath ($size MB)"
+        } else {
+          Write-Host "❌ ERROR: Release package not found at $zipPath"
+          Write-Host "Available files in ShieldX.Installer\output:"
+          Get-ChildItem "ShieldX.Installer\output" -ErrorAction SilentlyContinue | Format-Table Name, Length
+          exit 1
+        }
+    
+    - name: Prepare Release Directory
       run: |
         $version = "${{ steps.version.outputs.VERSION }}"
         $releaseDir = "releases"
         New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
         
-        # Copy signed release package
         Copy-Item "ShieldX.Installer\output\ShieldX_Professional_v$version.zip" `
           "$releaseDir\ShieldX_Professional_v$version.zip" -Force
+        
+        Write-Host "Release files:"
+        Get-ChildItem $releaseDir | Format-Table Name, @{Name="Size (MB)"; Expression={[math]::Round($_.Length/1MB, 2)}}
     
     - name: Generate Release Notes
       id: release_notes
@@ -67,71 +84,33 @@ jobs:
 - Version: $version
 - Release Date: $(Get-Date -Format 'MMMM dd, yyyy')
 - Built: $(Get-Date -Format 'HH:mm:ss UTC')
-- Code Signed: ✅ Yes
+- Code Signed: ✅ Yes (Self-Signed Certificate)
+
+**What's Included**
+- Self-contained application (includes .NET 8.0 runtime)
+- Real-time threat protection
+- Built-in threat scanner
+- Dark/Light theme support
+- Auto-update mechanism
 
 **Installation**
-Extract and run ShieldX_Professional_v$version.zip to get started.
+1. Download ShieldX_Professional_v$version.zip
+2. Extract to desired location
+3. Run ShieldX.exe to start
 
 **Verification**
-- Application is digitally signed with self-signed certificate
-- Ready for distribution
+- Application is digitally code-signed
+- Thumbprint: D27B8EEC9DFE10EBDFD3B7B1BAAD218E3304CCA9
+- Valid until: 2029-04-26
 
-For more details, visit: https://github.com/${{ github.repository }}
+**System Requirements**
+- Windows 7 SP1 or later
+- .NET 8.0 (included in package)
+- 256 MB RAM minimum
+
+For more information, visit: https://github.com/${{ github.repository }}
 "@
         Add-Content -Path "release-notes.md" -Value $notes
-        Write-Output "NOTES<<EOF`n$notes`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-    
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: releases/*
-        body_path: release-notes.md
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          "$releaseDir\ShieldX_Professional_v$version`_Setup.exe" -Force
-        
-        # Create portable ZIP
-        Compress-Archive -Path "publish\*" `
-          -DestinationPath "$releaseDir\ShieldX_Professional_v$version`_Portable.zip" `
-          -Force
-        
-        Write-Host "✅ Release archives created"
-        Get-ChildItem $releaseDir | Format-Table Name, Length
-    
-    - name: Generate Release Notes
-      id: release_notes
-      run: |
-        $version = "${{ steps.version.outputs.VERSION }}"
-        $notes = @"
-        ## ShieldX Professional Antivirus v$version
-        
-        ### Release Information
-        - **Version**: $version
-        - **Release Date**: $(Get-Date -Format 'MMMM dd, yyyy')
-        - **Built**: $(Get-Date -Format 'HH:mm:ss UTC')
-        - **Signed**: ✅ Yes (Code Signed Executable)
-        
-        ### Files
-        - **ShieldX_Professional_v$version`_Setup.exe** - Main installer (signed)
-        - **ShieldX_Professional_v$version`_Portable.zip** - Portable version
-        
-        ### Installation
-        Run the Setup.exe file and follow the prompts.
-        
-        ### Verification
-        - Signature: Digitally Signed
-        - Publisher: SYED HAMZA ALI SHAH
-        - Safe to Install: ✅ Yes
-        
-        ---
-        For documentation, see [CODE_SIGNING_GUIDE.md](https://github.com/${{ github.repository }}/blob/main/CODE_SIGNING_GUIDE.md)
-        "@
-        
-        Add-Content -Path "release-notes.md" -Value $notes
-        Write-Output "NOTES<<EOF`n$notes`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
     
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
@@ -144,10 +123,12 @@ For more details, visit: https://github.com/${{ github.repository }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Upload to Artifacts
+    - name: Upload Release Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ShieldX_v${{ steps.version.outputs.VERSION }}
+        name: ShieldX_Release_v${{ steps.version.outputs.VERSION }}
+        path: releases/*
+        retention-days: 30
         path: releases
         retention-days: 30
     
