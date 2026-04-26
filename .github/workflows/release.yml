@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     tags:
+      - 'test-*'
       - 'v*.*.*'
 
 jobs:
@@ -10,24 +11,32 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout Code
+    - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
     
-    - name: Setup .NET 8.0
+    - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     
-    - name: Extract Version from Tag
+    - name: Extract Version
       id: version
       shell: powershell
       run: |
         $tag = "${{ github.ref }}"
-        $version = $tag -replace 'refs/tags/v', ''
+        
+        # Handle both v*.*.* and test-* tags
+        if ($tag -match 'refs/tags/v(\d+\.\d+\.\d+)') {
+          $version = $matches[1]
+        } elseif ($tag -match 'refs/tags/test-(.+)') {
+          $version = $matches[1]
+        } else {
+          Write-Host "ERROR: Could not extract version from $tag" -ForegroundColor Red
+          exit 1
+        }
+        
+        Write-Host "Extracted version: $version" -ForegroundColor Green
         Write-Output "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-        Write-Host "Version: $version"
     
     - name: Build Release Package
       shell: powershell
@@ -117,6 +126,7 @@ For documentation and support, visit: https://github.com/${{ github.repository }
         Write-Host "Release notes created"
     
     - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: softprops/action-gh-release@v1
       with:
         files: releases/*
